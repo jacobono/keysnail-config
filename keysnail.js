@@ -4,7 +4,6 @@
 // Put all your code except special key, set*key, hook, blacklist.
 // ========================================================================= //
 //{{%PRESERVE%
-
 plugins.options["hok.hint_base_style"] = {
     position        : 'absolute',
     zIndex          : '2147483647',
@@ -28,39 +27,14 @@ key.setEditKey ('C-i', function (ev, arg) {
 
 plugins.options [ "K2Emacs.editor"  ] = "/usr/bin/gvim -f";
 
-// Escape (quit) key
-hook.setHook('KeyBoardQuit', function (ev, aEvent) {
-    if (key.currentKeySequence.length)
-        return;
-
-    command.closeFindBar();
-
-    if (util.isCaretEnabled())
-        command.resetMark(aEvent);
-    else             
-        goDoCommand("cmd_selectNone");
-
-    if (KeySnail.windowType == "navigator:browser")
-        key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
-
-    var elem = ev.originalTarget;
-    elem.blur();
-});
-
-hook.addToHook("KeySnailInitialized",
-    function () {
-       // setPrefs here for portable tweaks 
-});
-
-
 //}}%PRESERVE%
 // ========================================================================= //
 
 // ========================= Special key settings ========================== //
 
-key.quitKey              = "C-c";
-key.helpKey              = "undefined";
-key.escapeKey            = "C-v";
+key.quitKey              = "ESC";
+key.helpKey              = "<f1>";
+key.escapeKey            = "C-q";
 key.macroStartKey        = "undefined";
 key.macroEndKey          = "undefined";
 key.universalArgumentKey = "undefined";
@@ -70,6 +44,39 @@ key.negativeArgument3Key = "undefined";
 key.suspendKey           = "C-z";
 
 // ================================= Hooks ================================= //
+
+// Escape (quit) key
+hook.setHook('KeyBoardQuit', function (ev, aEvent) {
+    if (key.currentKeySequence.length) {
+        return;
+    }
+    command.closeFindBar();
+    if (util.isCaretEnabled()) {
+      //  let marked = aEvent.originalTarget.ksMarked;
+      //  let type = typeof marked;
+      //  if (type === "number" || type === "boolean" && marked) {
+      //      command.resetMark(aEvent);
+      //  } else {
+            let lastFocusedElem = document.commandDispatcher.focusedElement;
+            if (lastFocusedElem) {
+                lastFocusedElem.blur();
+            }
+            gBrowser.focus();
+            _content.focus();
+      //  }
+    } else {
+        goDoCommand("cmd_selectNone");
+    }
+    if (KeySnail.windowType == "navigator:browser") {
+        key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
+    }
+});
+
+
+hook.addToHook("KeySnailInitialized", function () {
+        // setPrefs here for portable tweaks 
+});
+
 
 // ============================= Key bindings ============================== //
 
@@ -169,7 +176,10 @@ key.setViewKey(['g', 'U'], function () {
 }, 'Go to the root directory');
 
 key.setViewKey(['g', 'i'], function () {
-    command.focusElement(command.elementsRetrieverTextarea, 0);
+    //if (lastFocusedElem) 
+    //    lastFocusedElem.focus();
+    //else
+        command.focusElement(command.elementsRetrieverTextarea, 0);
 }, 'Focus to the first textarea', true);
 
 key.setViewKey(['g', 'h'], function () {
@@ -265,7 +275,7 @@ key.setViewKey(';', function (ev, arg) {
 }, 'Start extended hint mode', true);
 
 key.setViewKey('d', function (ev) {
-    document.dispatchEvent(key.stringToKeyEvent("C-w", true));
+    getBrowser().removeTab(getBrowser().selectedTab);
 }, 'Close tab/window');
 
 key.setViewKey('D', function (ev) {
