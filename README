@@ -1,13 +1,28 @@
-My config files and whatnot for KeySnail, an Emacs/Vim-friendly keyboard control plugin for Firefox.
+My config files and whatnot for KeySnail, an Emacs/Vim-friendly keyboard
+control plugin for Firefox.
 
-A long time Vimperator, I recently switched to KeySnail for the following reasons:
+Being a long-time Vimperator user, I recently switched to KeySnail for (mostly)
+the following reasons:
 
-Speed: Using the built-in 'awesomebar' KeySnail is much faster when it comes to bookmark/history autocompletions. Also the hit-a-hint plugin responds much quicker (and in my opinion is more efficient) than the vimperator hinting system.  I found that while using vimperator on my netbook I always had to wait for autocompletions to 'catch up' with me--entering keywords too quickly would result in Google searches instead of the bookmarks themselves.
+    Speed: Using the built-in 'awesomebar' KeySnail is much faster when it
+    comes to bookmark/history autocompletions. Also the hit-a-hint plugin
+    responds much quicker (and in my opinion is more efficient) than the
+    vimperator hinting system.  I found that while using vimperator on my
+    netbook I always had to wait for autocompletions to 'catch up' with
+    me--entering keywords too quickly would result in Google searches instead
+    of the bookmarks themselves.
 
-Simplicity: KeySnail doesn't completely overhaul the Firefox UI...toolbars are untouched by default, built-in shortcuts work unless you choose to overridden them, etc.
+    Simplicity: KeySnail doesn't completely overhaul the Firefox UI...toolbars
+    are untouched by default, built-in shortcuts work unless you choose to
+    overridden them, etc.
 
-Flexibility: KeySnail is actually catered to Emacs users (ala key sequences), but is equally suited to modal Vim-like control. Custom functions are easily bound to keystrokes, event hooks, etc. 
+    Flexibility: KeySnail is actually catered to Emacs users (ala key
+    sequences), but is equally suited to modal Vim-like control. Custom
+    functions are easily bound to keystrokes, event hooks, etc. 
 
-    http://wiki.github.com/mooz/keysnail/
-    https://addons.mozilla.org/en-US/firefox/addon/13118
+
+Resources
+---------
+http://wiki.github.com/mooz/keysnail/
+https://addons.mozilla.org/en-US/firefox/addon/13118
 
