@@ -1,7 +1,10 @@
 // ========================== KeySnail Init File =========================== //
 
-// You can preserve your code in this area when generating the init file using GUI.
-// Put all your code except special key, set*key, hook, blacklist.
+// author:  thayer williams <thayerw.gmail.com>
+// site:    http://cinderwick.ca/
+// desc:    A vimperator-like keyboard config for KeySnail, a Firefox plugin
+//          which provides Emac/Vim-inspired keyboard control.
+//
 // ========================================================================= //
 //{{%PRESERVE%
 plugins.options["hok.hint_base_style"] = {
