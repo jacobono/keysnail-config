@@ -8,13 +8,13 @@ the following reasons:
     comes to bookmark/history autocompletions. Also the hit-a-hint plugin
     responds much quicker (and in my opinion is more efficient) than the
     vimperator hinting system.  I found that while using vimperator on my
-    netbook I always had to wait for autocompletions to 'catch up' with
-    me--entering keywords too quickly would result in Google searches instead
-    of the bookmarks themselves.
+    netbook I always had to wait for autocompletions to 'catch up'--entering
+    keywords too quickly would result in Google searches instead of the
+    bookmarks themselves.
 
     Simplicity: KeySnail doesn't completely overhaul the Firefox UI...toolbars
     are untouched by default, built-in shortcuts work unless you choose to
-    overridden them, etc.
+    override them, etc.
 
     Flexibility: KeySnail is actually catered to Emacs users (ala key
     sequences), but is equally suited to modal Vim-like control. Custom
