@@ -54,26 +54,63 @@ key.suspendKey           = "C-z";
 // ================================= Hooks ================================= //
 
 hook.setHook('KeyBoardQuit', function (ev, aEvent) {
+    // Ignore when the key sequence is typed
     if (key.currentKeySequence.length) {
         return;
     }
+    // close stubborn find bar
     command.closeFindBar();
+
     if (util.isCaretEnabled()) {
-        let lastFocusedElem = document.commandDispatcher.focusedElement;
-        if (lastFocusedElem) {
-            lastFocusedElem.blur();
-        }
-        gBrowser.focus();
-        _content.focus();
+        //let marked = aEvent.originalTarget.ksMarked;
+        //let type = typeof marked;
+        //if (type == "number" || type == "boolean" && marked) {
+            // Unmark if marked
+        //    command.resetMark(aEvent);
+        //} else {
+            // escape any input fields and focus content
+
+
+        goDoCommand("cmd_selectNone");
+
+
+
+//            let lastFocusedElem = document.commandDispatcher.focusedElement;
+//            if (lastFocusedElem) {
+//                lastFocusedElem.blur();
+//            }
+//            gBrowser.focus();
+//            _content.focus();
+        //}
     } else {
+        // deselect highlighted text
+
         goDoCommand("cmd_selectNone");
     }
-    if (KeySnail.windowType == "navigator:browser") {
-        key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
-    }
+    //if (KeySnail.windowType == "navigator:browser") {
+        // standard ESC behaviour
+    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
+    //}
 });
 
-hook.setHook('KeySnailInitialized', function () {});
+hook.setHook('KeySnailInitialized', function (
+    // set some system prefs:
+
+// put these in user.js 
+// tabs focus form elements only (not links)
+// accessibility.tabfocus: 3
+// font.minimum-size.x-western;10
+// browser.enable_automatic_image_resizing;false
+// browser.privatebrowsing.dont_prompt_on_enter;true
+// browser.tabs.closeWindowWithLastTab;false
+// browser.tabs.loadDivertedInBackground;true
+// keyword.URL;http://www.google.com/search?ie=UTF-8&oe=UTF-8&q=
+// middlemouse.contentLoadURL;false
+// network.dns.disableIPv6;true
+// view_source.editor.path;/usr/bin/gvim
+// view_source.wrap_long_lines;true
+
+) {});
 
 // ============================= Key bindings ============================== //
 
@@ -106,19 +143,35 @@ key.setViewKey('C-g', function () {
     BrowserPageInfo();
 }, 'Display page information');
 
-key.setViewKey(['C-k', 'k'], function () {
-    key.listKeyBindings();
-}, 'List all keybindings');
+key.setViewKey('C-t', function (aEvent) {
+    prompt.read("E.gg Timer:", function (query) {
+        if (window.loadURI) {
+            getBrowser().selectedTab = getBrowser().addTab("http://e.ggtimer.com/" + encodeURIComponent(query));
+        }
+    });
+}, 'E.gg Timer');
 
-key.setViewKey(['C-k', 'r'], function () {
-    userscript.reload();
-}, 'Reload the initialization file');
-
-key.setViewKey(['C-k', 'c'], function () {
+key.setGlobalKey(['C-k', 'c'], function () {
     command.interpreter();
 }, 'Command interpreter');
 
-key.setViewKey([['C-k', 'x'], [':']], function (aEvent, aArg) {
+key.setGlobalKey(['C-k', 'k'], function () {
+    key.listKeyBindings();
+}, 'List all keybindings');
+
+key.setGlobalKey(['C-k', 'p'], function () {
+    KeySnail.openPreference();
+}, 'Load KeySnail preferences dialogue');
+
+key.setGlobalKey(['C-k', 'r'], function () {
+    userscript.reload();
+}, 'Reload the initialization file');
+
+key.setViewKey(':', function (aEvent, aArg) {
+    ext.select(aArg, aEvent);
+}, 'List exts and execute selected one', true);
+
+key.setGlobalKey(['C-k', 'x'], function (aEvent, aArg) {
     ext.select(aArg, aEvent);
 }, 'List exts and execute selected one', true);
 
@@ -145,7 +198,10 @@ key.setViewKey('C-u', function (aEvent) {
 }, 'Scroll 10 lines up');
 
 key.setViewKey('a', function () {
-    PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.bookmarksMenuFolderId);
+    // set default destination to unsorted bookmarks
+    PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.unfiledMenuFolderId);
+    // set default destination to bookmarks menu
+    //PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.bookmarksMenuFolderId);
 }, 'Add bookmark here');
 
 key.setViewKey('d', function (ev) {
@@ -178,8 +234,10 @@ key.setViewKey('H', function () {
 }, 'Back');
 
 key.setViewKey('i', function () {
-    util.setBoolPref("accessibility.browsewithcaret", true);
-}, 'Start caret mode');
+    //util.setBoolPref("accessibility.browsewithcaret", true);
+    //key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_F7, true);
+    document.dispatchEvent(key.stringToKeyEvent("118", true));
+}, 'Toggle caret mode');
 
 key.setViewKey('j', function (aEvent) {
     key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_DOWN, true);
@@ -189,13 +247,162 @@ key.setViewKey([['J'], ['g', 'T']], function () {
     getBrowser().mTabContainer.advanceSelectedTab(-1, true);
 }, 'Select previous tab');
 
-key.setViewKey([['g', 't'], ['K']], function () {
+key.setViewKey('k', function (aEvent) {
+    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_UP, true);
+}, 'Scroll line up');
+
+key.setViewKey([['K'], ['g', 't']], function () {
     getBrowser().mTabContainer.advanceSelectedTab(1, true);
 }, 'Select next tab');
 
-key.setViewKey([['g', 'P'], ['P']], function () {
+key.setViewKey('l', function (aEvent) {
+    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_RIGHT, true);
+}, 'Scroll right');
+
+key.setViewKey('L', function () {
+    BrowserForward();
+    //goDoCommand("Browser:Forward");
+}, 'Forward');
+
+key.setViewKey('n', function () {
+    gFindBar.onFindAgainCommand(false);
+}, 'Incremental search forward');
+
+key.setViewKey('N', function () {
+    gFindBar.onFindAgainCommand(true);
+}, 'Incremental search backward');
+
+key.setViewKey('o', function () {
+    command.focusToById("urlbar");
+}, 'Focus to the location bar', true);
+
+key.setViewKey('O', function (aEvent) {
+    command.focusToById("urlbar");
+    command.endLine(aEvent);
+}, 'Focus location bar and go to end of line');
+
+key.setViewKey('p', function () {
+    openUILink(command.getClipboardText());
+}, 'Paste and Go in current tab');
+
+key.setViewKey([['P'], ['g', 'P']], function () {
     gBrowser.selectedTab = gBrowser.addTab(command.getClipboardText());
 }, 'Paste and Go in new tab');
+
+key.setViewKey('r', function () {
+    BrowserReload();
+}, 'Reload the current page', true);
+
+key.setViewKey('R', function () {
+    BrowserReloadSkipCache();
+}, 'Reload the current page (skipping cache)');
+
+key.setViewKey('s', function () {
+    BrowserStop();
+}, 'Stop page loading');
+
+key.setViewKey('t', function (ev) {
+    BrowserOpenTab();
+    //gBrowser.selectedTab = gBrowser.addTab("about:blank");
+    //command.focusToById("urlbar");
+}, 'Open a new tab');
+
+key.setViewKey('T', function () {
+    var url = window._content.location.href.toString();
+    gBrowser.selectedTab = gBrowser.addTab("about:blank");
+    command.focusToById("urlbar");
+    command.insertText(url);
+}, 'Open a new tab based on current URL');
+
+key.setViewKey('u', function (ev) {
+    var r_ss = Cc['@mozilla.org/browser/sessionstore;1'].getService(Ci.nsISessionStore);
+    if (r_ss.getClosedTabCount(window) > 0) {
+        undoCloseTab();
+    }
+}, 'Undo closing of a tab');
+
+key.setViewKey('w', function (ev) {
+    window.open("about:blank");
+}, 'Open a new window');
+
+key.setViewKey('y', function () {
+    const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper);
+    gClipboardHelper.copyString(window._content.location.href.toString());
+}, 'yank (copy) current location');
+
+key.setViewKey('Y', function () {
+    goDoCommand("cmd_copy");
+}, 'yank (copy) selected text');
+
+key.setViewKey('{', function () {
+    var browser = getBrowser();
+    if (browser.mCurrentTab.previousSibling) {
+        browser.moveTabTo(browser.mCurrentTab, browser.mCurrentTab._tPos - 1);
+    } else {
+        browser.moveTabTo(browser.mCurrentTab, browser.mTabContainer.childNodes.length - 1);
+    }
+}, 'Move tab left');
+ 
+key.setViewKey('}', function () {
+    var browser = getBrowser();
+    if (browser.mCurrentTab.nextSibling) {
+        browser.moveTabTo(browser.mCurrentTab, browser.mCurrentTab._tPos + 1);
+    } else {
+        browser.moveTabTo(browser.mCurrentTab, 0);
+    }
+}, 'Move tab right');
+
+key.setViewKey('~', function () {
+    var dirService = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
+    var homeDirFile = dirService.get("Home", Components.interfaces.nsIFile);
+    var homeDir = homeDirFile.path;
+    gBrowser.selectedTab = gBrowser.addTab(homeDir);
+}, 'Open home directory in new tab');
+
+key.setViewKey(';', function (ev, arg) {
+    ext.exec("hok-start-extended-mode", arg);
+}, 'Start extended hint mode', true);
+
+key.setViewKey('/', function () {
+    command.iSearchForward();
+}, 'Incremental search forward', true);
+
+key.setViewKey('?', function (ev) {
+    command.iSearchForwardKs(ev);
+}, 'Emacs like incremental search forward', true);
+
+key.setViewKey('>', function (ev, arg) {
+    var url = content.location.href;
+    var pattern = /(.*)([0-9]+)([^0-9]*)$/;
+    var digit = url.match(pattern);
+    if (digit[1] && digit[2]) {
+        let next = + digit[2] + (arg ? arg : 1);
+        content.location.href = digit[1] + next + (digit[3] || "");
+    }
+}, 'Increment last digit in the URL');
+
+key.setViewKey('<', function (ev, arg) {
+    var url = content.location.href;
+    var pattern = /(.*)([0-9]+)([^0-9]*)$/;
+    var digit = url.match(pattern);
+    if (digit[1] && digit[2]) {
+        let next = + digit[2] - (arg ? arg : 1);
+        content.location.href = digit[1] + next + (digit[3] || "");
+    }
+}, 'Decrement last digit in the URL');
+
+key.setViewKey('\\', function () {
+    var viewStyle = getMarkupDocumentViewer().authorStyleDisabled;
+    if (viewStyle) {
+        setStyleDisabled(false);
+    } else {
+        setStyleDisabled(true);
+    }
+}, 'Toggle CSS rendering for current page');
+
+key.setViewKey([']', 'f'], function (aEvent, aArg) {
+    command.focusOtherFrame(aArg);
+}, 'Focus next frame', true);
 
 key.setViewKey(['g', 'a'], function () {
     gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul");
@@ -206,8 +413,10 @@ key.setViewKey(['g', 'A'], function () {
 }, 'Open Addons manager (search mode) in new tab');
 
 key.setViewKey(['g', 'b'], function () {
-    PlacesCommandHook.showPlacesOrganizer("AllBookmarks");
-}, 'Open bookmarks manager');
+    //PlacesCommandHook.showPlacesOrganizer("AllBookmarks");
+    //gBrowser.selectedTab = gBrowser.addTab("chrome://browser/content/bookmarks/bookmarksPanel.xul");
+    gBrowser.selectedTab = gBrowser.addTab("chrome://browser/content/places/places.xul");
+}, 'Open bookmarks manager in new tab');
 
 key.setViewKey(['g', 'c'], function () {
     gBrowser.selectedTab = gBrowser.addTab("about:config");
@@ -285,135 +494,6 @@ key.setViewKey(['g', '$'], function () {
 key.setViewKey(['g', '0'], function () {
     document.dispatchEvent(key.stringToKeyEvent("M-1", true));
 }, 'Go to the first tab');
-
-key.setViewKey('k', function (aEvent) {
-    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_UP, true);
-}, 'Scroll line up');
-
-key.setViewKey('l', function (aEvent) {
-    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_RIGHT, true);
-}, 'Scroll right');
-
-key.setViewKey('L', function () {
-    BrowserForward();
-}, 'Forward');
-
-key.setViewKey('n', function () {
-    gFindBar.onFindAgainCommand(false);
-}, 'Incremental search forward');
-
-key.setViewKey('N', function () {
-    gFindBar.onFindAgainCommand(true);
-}, 'Incremental search backward');
-
-key.setViewKey('o', function () {
-    command.focusToById("urlbar");
-}, 'Focus to the location bar', true);
-
-key.setViewKey('O', function (aEvent) {
-    command.focusToById("urlbar");
-    command.endLine(aEvent);
-}, 'Focus location bar and go to end of line');
-
-key.setViewKey('p', function () {
-    openUILink(command.getClipboardText());
-}, 'Paste and Go in current tab');
-
-key.setViewKey('r', function () {
-    BrowserReload();
-}, 'Reload the page', true);
-
-key.setViewKey('R', function () {
-    BrowserReloadSkipCache();
-}, 'Reload (Skip cache)');
-
-key.setViewKey('s', function () {
-    BrowserStop();
-}, 'Stop page loading');
-
-key.setViewKey('t', function (ev) {
-    gBrowser.selectedTab = gBrowser.addTab("about:blank");
-    command.focusToById("urlbar");
-}, 'Open a new tab');
-
-key.setViewKey('T', function () {
-    var url = window._content.location.href.toString();
-    gBrowser.selectedTab = gBrowser.addTab("about:blank");
-    command.focusToById("urlbar");
-    command.insertText(url);
-}, 'Open a new tab based on current URL');
-
-key.setViewKey('u', function (ev) {
-    var r_ss = Cc['@mozilla.org/browser/sessionstore;1'].getService(Ci.nsISessionStore);
-    if (r_ss.getClosedTabCount(window) > 0) {
-        undoCloseTab();
-    }
-}, 'Undo closing of a tab');
-
-key.setViewKey('w', function (ev) {
-    window.open("about:blank");
-}, 'Open a new window');
-
-key.setViewKey('y', function () {
-    const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper);
-    gClipboardHelper.copyString(window._content.location.href.toString());
-}, 'yank (copy) current location');
-
-key.setViewKey('Y', function () {
-    goDoCommand("cmd_copy");
-}, 'yank (copy) selected text');
-
-key.setViewKey('~', function () {
-    var dirService = Components.classes['@mozilla.org/file/directory_service;1'].getService(Components.interfaces.nsIProperties);
-    var homeDirFile = dirService.get("Home", Components.interfaces.nsIFile);
-    var homeDir = homeDirFile.path;
-    gBrowser.selectedTab = gBrowser.addTab(homeDir);
-}, 'Open home directory in new tab');
-
-key.setViewKey(';', function (ev, arg) {
-    ext.exec("hok-start-extended-mode", arg);
-}, 'Start extended hint mode', true);
-
-key.setViewKey('/', function () {
-    command.iSearchForward();
-}, 'Incremental search forward', true);
-
-key.setViewKey('?', function (ev) {
-    command.iSearchForwardKs(ev);
-}, 'Emacs like incremental search forward', true);
-
-key.setViewKey('>', function (ev, arg) {
-    var url = content.location.href;
-    var pattern = /(.*)([0-9]+)([^0-9]*)$/;
-    var digit = url.match(pattern);
-    if (digit[1] && digit[2]) {
-        let next = + digit[2] + (arg ? arg : 1);
-        content.location.href = digit[1] + next + (digit[3] || "");
-    }
-}, 'Increment last digit in the URL');
-
-key.setViewKey('<', function (ev, arg) {
-    var url = content.location.href;
-    var pattern = /(.*)([0-9]+)([^0-9]*)$/;
-    var digit = url.match(pattern);
-    if (digit[1] && digit[2]) {
-        let next = + digit[2] - (arg ? arg : 1);
-        content.location.href = digit[1] + next + (digit[3] || "");
-    }
-}, 'Decrement last digit in the URL');
-
-key.setViewKey('\\', function () {
-    var viewStyle = getMarkupDocumentViewer().authorStyleDisabled;
-    if (viewStyle) {
-        setStyleDisabled(false);
-    } else {
-        setStyleDisabled(true);
-    }
-}, 'Toggle CSS rendering for current page');
-
-key.setViewKey([']', 'f'], function (aEvent, aArg) {
-    command.focusOtherFrame(aArg);
-}, 'Focus next frame', true);
 
 key.setViewKey(['Z', 'Z'], function (ev) {
     util.setIntPref("browser.startup.page", 3);
@@ -509,11 +589,11 @@ key.setEditKey('C-u', function (aEvent) {
     key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_DELETE, true);
 }, 'Delete the line');
 
-key.setCaretKey('^', function (aEvent) {
+key.setCaretKey('0', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
 }, 'Move caret to the beginning of the line');
 
-key.setCaretKey([['$'], ['G']], function (aEvent) {
+key.setCaretKey('$', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
 }, 'Move caret to the end of the line');
 
@@ -529,7 +609,7 @@ key.setCaretKey('l', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectCharNext") : goDoCommand("cmd_scrollRight");
 }, 'Move caret to the right');
 
-key.setCaretKey([['C-h'], ['h']], function (aEvent) {
+key.setCaretKey('h', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectCharPrevious") : goDoCommand("cmd_scrollLeft");
 }, 'Move caret to the left');
 
@@ -537,17 +617,13 @@ key.setCaretKey('w', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectWordNext") : goDoCommand("cmd_wordNext");
 }, 'Move caret to the right by word');
 
-key.setCaretKey('W', function (aEvent) {
+key.setCaretKey([['W'], ['b']], function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : goDoCommand("cmd_wordPrevious");
 }, 'Move caret to the left by word');
 
-key.setCaretKey('SPC', function (aEvent) {
-    aEvent.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
-}, 'Move caret down by page');
-
-key.setCaretKey('b', function (aEvent) {
-    aEvent.target.ksMarked ? goDoCommand("cmd_selectPagePrevious") : goDoCommand("cmd_movePageUp");
-}, 'Move caret up by page');
+//key.setCaretKey('SPC', function (aEvent) {
+//    aEvent.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
+//}, 'Move caret down by page');
 
 key.setCaretKey(['g', 'g'], function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectTop") : goDoCommand("cmd_scrollTop");
