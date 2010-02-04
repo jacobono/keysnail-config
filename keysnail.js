@@ -1,12 +1,17 @@
 // ========================== KeySnail Init File =========================== //
 
+// You can preserve your code in this area when generating the init file using GUI.
+// Put all your code except special key, set*key, hook, blacklist.
+// ========================================================================= //
+//{{%PRESERVE%
+
 // author:  thayer williams <thayerw.gmail.com>
 // site:    http://cinderwick.ca/
 // desc:    A vimperator-like keyboard config for KeySnail, a Firefox plugin
-//          which provides Emac/Vim-inspired keyboard control.
-//
-// ========================================================================= //
-//{{%PRESERVE%
+//          which provides Emacs/Vim-inspired keyboard control.
+//          
+//          More info at http://wiki.github.com/mooz/keysnail/
+
 plugins.options["hok.hint_base_style"] = {
     position        : 'absolute',
     zIndex          : '2147483647',
@@ -48,42 +53,33 @@ key.suspendKey           = "C-z";
 
 // ================================= Hooks ================================= //
 
-// Escape (quit) key
 hook.setHook('KeyBoardQuit', function (ev, aEvent) {
     if (key.currentKeySequence.length) {
         return;
     }
     command.closeFindBar();
     if (util.isCaretEnabled()) {
-      //  let marked = aEvent.originalTarget.ksMarked;
-      //  let type = typeof marked;
-      //  if (type === "number" || type === "boolean" && marked) {
-      //      command.resetMark(aEvent);
-      //  } else {
-            let lastFocusedElem = document.commandDispatcher.focusedElement;
-            if (lastFocusedElem) {
-                lastFocusedElem.blur();
-            }
-            gBrowser.focus();
-            _content.focus();
-      //  }
+        let lastFocusedElem = document.commandDispatcher.focusedElement;
+        if (lastFocusedElem) {
+            lastFocusedElem.blur();
+        }
+        gBrowser.focus();
+        _content.focus();
     } else {
         goDoCommand("cmd_selectNone");
     }
     if (KeySnail.windowType == "navigator:browser") {
         key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
     }
-    document.dispatchEvent(key.stringToKeyEvent("Esc", true));
 });
 
-
-hook.addToHook("KeySnailInitialized", function () {
-        // setPrefs here for portable tweaks 
-});
-
+hook.setHook('KeySnailInitialized', function () {});
 
 // ============================= Key bindings ============================== //
-// ============================ View Mode Keys ============================= //
+
+key.setGlobalKey('M-:', function (ev, arg) {
+    command.interpreter(ev, arg);
+}, 'Eval', true);
 
 key.setViewKey('C-b', function () {
     goDoCommand("cmd_scrollPageUp");
@@ -122,7 +118,7 @@ key.setViewKey(['C-k', 'c'], function () {
     command.interpreter();
 }, 'Command interpreter');
 
-key.setViewKey(['C-k', 'x'], function (aEvent, aArg) {
+key.setViewKey([['C-k', 'x'], [':']], function (aEvent, aArg) {
     ext.select(aArg, aEvent);
 }, 'List exts and execute selected one', true);
 
@@ -193,13 +189,106 @@ key.setViewKey([['J'], ['g', 'T']], function () {
     getBrowser().mTabContainer.advanceSelectedTab(-1, true);
 }, 'Select previous tab');
 
+key.setViewKey([['g', 't'], ['K']], function () {
+    getBrowser().mTabContainer.advanceSelectedTab(1, true);
+}, 'Select next tab');
+
+key.setViewKey([['g', 'P'], ['P']], function () {
+    gBrowser.selectedTab = gBrowser.addTab(command.getClipboardText());
+}, 'Paste and Go in new tab');
+
+key.setViewKey(['g', 'a'], function () {
+    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul");
+}, 'Open Addons manager in new tab');
+
+key.setViewKey(['g', 'A'], function () {
+    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul?type=extensions");
+}, 'Open Addons manager (search mode) in new tab');
+
+key.setViewKey(['g', 'b'], function () {
+    PlacesCommandHook.showPlacesOrganizer("AllBookmarks");
+}, 'Open bookmarks manager');
+
+key.setViewKey(['g', 'c'], function () {
+    gBrowser.selectedTab = gBrowser.addTab("about:config");
+}, 'Open about:config in new tab');
+
+key.setViewKey(['g', 'd'], function () {
+    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/downloads/downloads.xul");
+}, 'Open downloads in new tab');
+
+key.setViewKey(['g', 'f'], function () {
+    var key = "view_source.editor.external";
+    util.setBoolPref(key, false);
+    BrowserViewSourceOfDocument(content.document);
+}, 'View page source');
+
+key.setViewKey(['g', 'F'], function () {
+    var key = "view_source.editor.external";
+    util.setBoolPref(key, true);
+    BrowserViewSourceOfDocument(content.document);
+}, 'View page source in external editor');
+
+key.setViewKey(['g', 'g'], function () {
+    goDoCommand("cmd_scrollTop");
+}, 'Scroll to the top of the page', true);
+
+key.setViewKey(['g', 'h'], function () {
+    var homepage = gHomeButton.getHomePage();
+    openUILink(homepage);
+}, 'Open homepage in current tab');
+
+key.setViewKey(['g', 'H'], function () {
+    var homepage = gHomeButton.getHomePage();
+    gBrowser.selectedTab = gBrowser.addTab(homepage);
+}, 'Open homepage in new background tab');
+
+key.setViewKey(['g', 'i'], function () {
+    command.focusElement(command.elementsRetrieverTextarea, 0);
+}, 'Focus to the first textarea', true);
+
+key.setViewKey(['g', 'm'], function () {
+    gBrowser.selectedTab = gBrowser.addTab("chrome://greasemonkey/content/manage.xul");
+}, 'Open grease monkey userscripts in new tab');
+
+key.setViewKey(['g', 'p'], function () {
+    openPreferences();
+}, 'Open firefox preferences');
+
+key.setViewKey(['g', 'u'], function () {
+    var uri = getBrowser().currentURI;
+    if (uri.path == "/") {
+        return;
+    }
+    var pathList = uri.path.split("/");
+    if (!pathList.pop()) {
+        pathList.pop();
+    }
+    loadURI(uri.prePath + pathList.join("/") + ("/"));
+}, 'Go upper directory');
+
+key.setViewKey(['g', 'U'], function () {
+    var uri = window._content.location.href;
+    if (uri == null) {
+        return;
+    }
+    var root = uri.match(/^[a-z]+:\/\/[^/]+\//);
+    if (root) {
+        loadURI(root, null, null);
+    }
+}, 'Go to the root directory');
+
+key.setViewKey(['g', '$'], function () {
+    document.dispatchEvent(key.stringToKeyEvent("M-9", true));
+}, 'Go to the last tab');
+
+key.setViewKey(['g', '0'], function () {
+    document.dispatchEvent(key.stringToKeyEvent("M-1", true));
+}, 'Go to the first tab');
+
 key.setViewKey('k', function (aEvent) {
     key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_UP, true);
 }, 'Scroll line up');
-
-key.setViewKey([['K'], ['g', 't']], function () {
-    getBrowser().mTabContainer.advanceSelectedTab(1, true);
-}, 'Select next tab');
 
 key.setViewKey('l', function (aEvent) {
     key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_RIGHT, true);
@@ -229,10 +318,6 @@ key.setViewKey('O', function (aEvent) {
 key.setViewKey('p', function () {
     openUILink(command.getClipboardText());
 }, 'Paste and Go in current tab');
-
-key.setViewKey([['P'], ['g', 'P']], function () {
-    gBrowser.selectedTab = gBrowser.addTab(command.getClipboardText());
-}, 'Paste and Go in new tab');
 
 key.setViewKey('r', function () {
     BrowserReload();
@@ -270,8 +355,7 @@ key.setViewKey('w', function (ev) {
 }, 'Open a new window');
 
 key.setViewKey('y', function () {
-    const gClipboardHelper = Components.classes["@mozilla.org/widget/clipboardhelper;1"].  
-    getService(Components.interfaces.nsIClipboardHelper);  
+    const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper);
     gClipboardHelper.copyString(window._content.location.href.toString());
 }, 'yank (copy) current location');
 
@@ -285,10 +369,6 @@ key.setViewKey('~', function () {
     var homeDir = homeDirFile.path;
     gBrowser.selectedTab = gBrowser.addTab(homeDir);
 }, 'Open home directory in new tab');
-
-key.setViewKey(':', function (aEvent, aArg) {
-    ext.select(aArg, aEvent);
-}, 'List exts and execute selected one', true);
 
 key.setViewKey(';', function (ev, arg) {
     ext.exec("hok-start-extended-mode", arg);
@@ -334,113 +414,6 @@ key.setViewKey('\\', function () {
 key.setViewKey([']', 'f'], function (aEvent, aArg) {
     command.focusOtherFrame(aArg);
 }, 'Focus next frame', true);
-
-key.setViewKey(['g', 'a'], function () {
-    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul");
-}, 'Open Addons manager in new tab');
-
-key.setViewKey(['g', 'A'], function () {
-    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul?type=extensions");
-}, 'Open Addons manager (search mode) in new tab');
-
-key.setViewKey(['g', 'b'], function () {
-    PlacesCommandHook.showPlacesOrganizer("AllBookmarks");
-}, 'Open bookmarks manager');
-
-key.setViewKey(['g', 'c'], function () {
-    gBrowser.selectedTab = gBrowser.addTab("about:config");
-}, 'Open about:config in new tab');
-
-key.setViewKey(['g', 'd'], function () {
-    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/downloads/downloads.xul");
-}, 'Open downloads in new tab');
-
-key.setViewKey(['g', 'f'], function () {
-    var key = "view_source.editor.external";
-    util.setBoolPref(key, false);
-    BrowserViewSourceOfDocument(content.document);
-    //if (util.getBoolPref(key, false)) {
-    //    BrowserViewSourceOfDocument(content.document);
-    //} else {
-    //    util.setBoolPref(key, false);
-    //    BrowserViewSourceOfDocument(content.document);
-    //    util.setBoolPref(key, true);
-    //}
-}, 'View page source');
-
-key.setViewKey(['g', 'F'], function () {
-    var key = "view_source.editor.external";
-    util.setBoolPref(key, true);
-    BrowserViewSourceOfDocument(content.document);
-    //var key = "view_source.editor.external";
-    //if (util.getBoolPref(key, false)) {
-    //    util.setBoolPref(key, true);
-    //    BrowserViewSourceOfDocument(content.document);
-    //    util.setBoolPref(key, false);
-    //} else {
-    //    BrowserViewSourceOfDocument(content.document);
-    //}
-}, 'View page source in external editor');
-
-key.setViewKey(['g', 'g'], function () {
-    goDoCommand("cmd_scrollTop");
-}, 'Scroll to the top of the page', true);
-
-key.setViewKey(['g', 'h'], function () {
-    var homepage = gHomeButton.getHomePage();
-    openUILink(homepage);
-}, 'Open homepage in current tab');
-
-key.setViewKey(['g', 'H'], function () {
-    var homepage = gHomeButton.getHomePage();
-    gBrowser.selectedTab = gBrowser.addTab(homepage);
-}, 'Open homepage in new background tab');
-
-key.setViewKey(['g', 'i'], function () {
-    //if (lastFocusedElem) 
-    //    lastFocusedElem.focus();
-    //else
-        command.focusElement(command.elementsRetrieverTextarea, 0);
-}, 'Focus to the first textarea', true);
-
-key.setViewKey(['g', 'm'], function () {
-    gBrowser.selectedTab = gBrowser.addTab("chrome://greasemonkey/content/manage.xul");
-}, 'Open grease monkey userscripts in new tab');
-
-key.setViewKey(['g', 'p'], function () {
-    openPreferences();
-}, 'Open firefox preferences');
-
-key.setViewKey(['g', 'u'], function () {
-    var uri = getBrowser().currentURI;
-    if (uri.path == "/") {
-        return;
-    }
-    var pathList = uri.path.split("/");
-    if (!pathList.pop()) {
-        pathList.pop();
-    }
-    loadURI(uri.prePath + pathList.join("/") + ("/"));
-}, 'Go upper directory');
-
-key.setViewKey(['g', 'U'], function () {
-    var uri = window._content.location.href;
-    if (uri == null) {
-        return;
-    }
-    var root = uri.match(/^[a-z]+:\/\/[^/]+\//);
-    if (root) {
-        loadURI(root, null, null);
-    }
-}, 'Go to the root directory');
-
-key.setViewKey(['g', '$'], function () {
-    document.dispatchEvent(key.stringToKeyEvent("M-9", true));
-}, 'Go to the last tab');
-
-key.setViewKey(['g', '0'], function () {
-    document.dispatchEvent(key.stringToKeyEvent("M-1", true));
-}, 'Go to the first tab');
 
 key.setViewKey(['Z', 'Z'], function (ev) {
     util.setIntPref("browser.startup.page", 3);
@@ -503,8 +476,6 @@ key.setViewKey([['z', 'z'], ['=']], function () {
     ZoomManager.reset();
 }, 'Reset zoom');
 
-// ============================ Edit Mode Keys ============================= //
-
 key.setEditKey('C-i', function (ev, arg) {
     ext.exec("edit_text", arg);
 }, 'Edit in external editor', true);
@@ -537,14 +508,6 @@ key.setEditKey('C-u', function (aEvent) {
     command.selectAll(aEvent);
     key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_DELETE, true);
 }, 'Delete the line');
-
-//key.setEditKey('ESC', function (ev) {
-//    command.closeFindBar();
-//    var elem = ev.originalTarget;
-//    elem.blur();
-//}, 'Exit edit mode');
-
-// =========================== Caret Mode Keys ============================= //
 
 key.setCaretKey('^', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
@@ -674,11 +637,3 @@ key.setCaretKey('d', function (ev) {
 key.setCaretKey('u', function (ev) {
     document.dispatchEvent(key.stringToKeyEvent("C-T", true));
 }, 'Undo closed tab');
-
-// ============================= Global Keys =============================== //
-
-key.setGlobalKey('M-:', function (ev, arg) {
-    command.interpreter(ev, arg);
-}, 'Eval', true);
-
-
