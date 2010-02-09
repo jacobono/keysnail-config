@@ -35,6 +35,7 @@ key.setEditKey ('C-i', function (ev, arg) {
 
 plugins.options [ "K2Emacs.editor"  ] = "/usr/bin/gvim -f";
 
+
 //}}%PRESERVE%
 // ========================================================================= //
 
@@ -49,74 +50,64 @@ key.universalArgumentKey = "undefined";
 key.negativeArgument1Key = "undefined";
 key.negativeArgument2Key = "undefined";
 key.negativeArgument3Key = "undefined";
-key.suspendKey           = "C-z";
+key.suspendKey           = "<f12>";
 
 // ================================= Hooks ================================= //
 
 hook.setHook('KeyBoardQuit', function (ev, aEvent) {
+
     // Ignore when the key sequence is typed
     if (key.currentKeySequence.length) {
         return;
     }
-    // close stubborn find bar
+
+    // close the find bar
     command.closeFindBar();
 
+    // Exit caret browsing
+    util.setBoolPref("accessibility.browsewithcaret", false);
+
     if (util.isCaretEnabled()) {
-        //let marked = aEvent.originalTarget.ksMarked;
-        //let type = typeof marked;
-        //if (type == "number" || type == "boolean" && marked) {
-            // Unmark if marked
-        //    command.resetMark(aEvent);
-        //} else {
-            // escape any input fields and focus content
+        
+        // escape any input fields and focus content
+        let lastFocusedElem = document.commandDispatcher.focusedElement;
+        if (lastFocusedElem) {
+            lastFocusedElem.blur();
+        }
+        gBrowser.focus();
+        _content.focus();
 
-
-        goDoCommand("cmd_selectNone");
-
-
-
-//            let lastFocusedElem = document.commandDispatcher.focusedElement;
-//            if (lastFocusedElem) {
-//                lastFocusedElem.blur();
-//            }
-//            gBrowser.focus();
-//            _content.focus();
-        //}
     } else {
-        // deselect highlighted text
-
+        // deselect any highlighted text
         goDoCommand("cmd_selectNone");
     }
-    //if (KeySnail.windowType == "navigator:browser") {
-        // standard ESC behaviour
-    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
-    //}
+    if (KeySnail.windowType == "navigator:browser") {
+        // standard ESC
+        key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_ESCAPE, true);
+    }
 });
-
-hook.setHook('KeySnailInitialized', function (
-    // set some system prefs:
-
-// put these in user.js 
-// tabs focus form elements only (not links)
-// accessibility.tabfocus: 3
-// font.minimum-size.x-western;10
-// browser.enable_automatic_image_resizing;false
-// browser.privatebrowsing.dont_prompt_on_enter;true
-// browser.tabs.closeWindowWithLastTab;false
-// browser.tabs.loadDivertedInBackground;true
-// keyword.URL;http://www.google.com/search?ie=UTF-8&oe=UTF-8&q=
-// middlemouse.contentLoadURL;false
-// network.dns.disableIPv6;true
-// view_source.editor.path;/usr/bin/gvim
-// view_source.wrap_long_lines;true
-
-) {});
 
 // ============================= Key bindings ============================== //
 
 key.setGlobalKey('M-:', function (ev, arg) {
     command.interpreter(ev, arg);
 }, 'Eval', true);
+
+key.setGlobalKey(['C-k', 'c'], function () {
+    command.interpreter();
+}, 'Command interpreter');
+
+key.setGlobalKey(['C-k', 'k'], function () {
+    key.listKeyBindings();
+}, 'List all keybindings');
+
+key.setGlobalKey(['C-k', 'p'], function () {
+    KeySnail.openPreference();
+}, 'Load KeySnail preferences dialogue');
+
+key.setGlobalKey(['C-k', 'r'], function () {
+    userscript.reload();
+}, 'Reload the initialization file');
 
 key.setViewKey('C-b', function () {
     goDoCommand("cmd_scrollPageUp");
@@ -150,22 +141,6 @@ key.setViewKey('C-t', function (aEvent) {
         }
     });
 }, 'E.gg Timer');
-
-key.setGlobalKey(['C-k', 'c'], function () {
-    command.interpreter();
-}, 'Command interpreter');
-
-key.setGlobalKey(['C-k', 'k'], function () {
-    key.listKeyBindings();
-}, 'List all keybindings');
-
-key.setGlobalKey(['C-k', 'p'], function () {
-    KeySnail.openPreference();
-}, 'Load KeySnail preferences dialogue');
-
-key.setGlobalKey(['C-k', 'r'], function () {
-    userscript.reload();
-}, 'Reload the initialization file');
 
 key.setViewKey(':', function (aEvent, aArg) {
     ext.select(aArg, aEvent);
@@ -234,9 +209,7 @@ key.setViewKey('H', function () {
 }, 'Back');
 
 key.setViewKey('i', function () {
-    //util.setBoolPref("accessibility.browsewithcaret", true);
-    //key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_F7, true);
-    document.dispatchEvent(key.stringToKeyEvent("118", true));
+    util.setBoolPref("accessibility.browsewithcaret", true);
 }, 'Toggle caret mode');
 
 key.setViewKey('j', function (aEvent) {
@@ -245,6 +218,8 @@ key.setViewKey('j', function (aEvent) {
 
 key.setViewKey([['J'], ['g', 'T']], function () {
     getBrowser().mTabContainer.advanceSelectedTab(-1, true);
+    let elem = document.commandDispatcher.focusedElement;
+    if (elem) elem.blur();
 }, 'Select previous tab');
 
 key.setViewKey('k', function (aEvent) {
@@ -253,6 +228,8 @@ key.setViewKey('k', function (aEvent) {
 
 key.setViewKey([['K'], ['g', 't']], function () {
     getBrowser().mTabContainer.advanceSelectedTab(1, true);
+    let elem = document.commandDispatcher.focusedElement;
+    if (elem) elem.blur();
 }, 'Select next tab');
 
 key.setViewKey('l', function (aEvent) {
@@ -454,7 +431,7 @@ key.setViewKey(['g', 'H'], function () {
 
 key.setViewKey(['g', 'i'], function () {
     command.focusElement(command.elementsRetrieverTextarea, 0);
-}, 'Focus to the first textarea', true);
+}, 'Focus first textarea', true);
 
 key.setViewKey(['g', 'm'], function () {
     gBrowser.selectedTab = gBrowser.addTab("chrome://greasemonkey/content/manage.xul");
@@ -556,38 +533,46 @@ key.setViewKey([['z', 'z'], ['=']], function () {
     ZoomManager.reset();
 }, 'Reset zoom');
 
+key.setEditKey('C-a', function (aEvent) {
+    command.beginLine(aEvent);
+}, 'Go to beginning of the line');
+
+key.setEditKey('C-b', function (aEvent) {
+    command.previousChar(aEvent);
+}, 'Move backward one char');
+
+key.setEditKey('C-d', function () {
+    goDoCommand("cmd_deleteCharForward");
+}, 'Delete one char forward');
+
+key.setEditKey('C-e', function (aEvent) {
+    command.endLine(aEvent);
+}, 'Go to end of the line');
+
+key.setEditKey('C-f', function (aEvent) {
+    command.nextChar(aEvent);
+}, 'Move forward one char');
+
+key.setEditKey('C-h', function () {
+    goDoCommand("cmd_deleteCharBackward");
+}, 'Delete one char backward');
+
 key.setEditKey('C-i', function (ev, arg) {
     ext.exec("edit_text", arg);
 }, 'Edit in external editor', true);
 
-key.setEditKey('C-h', function () {
-    goDoCommand("cmd_deleteCharBackward");
-}, 'Delete backward char');
+key.setEditKey('C-k', function (aEvent) {
+    goDoCommand("cmd_deleteToEndOfLine");
+}, 'Delete forward to end of line');
 
-key.setEditKey('C-e', function (aEvent) {
-    command.endLine(aEvent);
-}, 'End of the line');
-
-key.setEditKey('C-a', function (aEvent) {
-    command.beginLine(aEvent);
-}, 'Beginning of the line');
-
-key.setEditKey('C-f', function (aEvent) {
-    command.nextChar(aEvent);
-}, 'Forward char');
-
-key.setEditKey('C-b', function (aEvent) {
-    command.previousChar(aEvent);
-}, 'Backward char');
+key.setEditKey('C-u', function (aEvent) {
+    goDoCommand("cmd_selectBeginLine");
+    goDoCommand("cmd_delete");
+}, 'Delete the line from the beginning to point');
 
 key.setEditKey('C-w', function (ev) {
     command.deleteBackwardWord(ev);
 }, 'Delete backward word');
-
-key.setEditKey('C-u', function (aEvent) {
-    command.selectAll(aEvent);
-    key.generateKey(aEvent.originalTarget, KeyEvent.DOM_VK_DELETE, true);
-}, 'Delete the line');
 
 key.setCaretKey('0', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectBeginLine") : goDoCommand("cmd_beginLine");
@@ -596,6 +581,10 @@ key.setCaretKey('0', function (aEvent) {
 key.setCaretKey('$', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectEndLine") : goDoCommand("cmd_endLine");
 }, 'Move caret to the end of the line');
+
+key.setCaretKey('i', function () {
+    util.setBoolPref("accessibility.browsewithcaret", false);
+}, 'Toggle caret mode');
 
 key.setCaretKey('j', function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectLineNext") : goDoCommand("cmd_scrollLineDown");
@@ -621,9 +610,9 @@ key.setCaretKey([['W'], ['b']], function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectWordPrevious") : goDoCommand("cmd_wordPrevious");
 }, 'Move caret to the left by word');
 
-//key.setCaretKey('SPC', function (aEvent) {
-//    aEvent.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
-//}, 'Move caret down by page');
+key.setCaretKey('SPC', function (aEvent) {
+    aEvent.target.ksMarked ? goDoCommand("cmd_selectPageNext") : goDoCommand("cmd_movePageDown");
+}, 'Move caret down by page');
 
 key.setCaretKey(['g', 'g'], function (aEvent) {
     aEvent.target.ksMarked ? goDoCommand("cmd_selectTop") : goDoCommand("cmd_scrollTop");
