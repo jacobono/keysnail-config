@@ -17,17 +17,20 @@ plugins.options["hok.hint_base_style"] = {
     zIndex          : '2147483647',
     color           : '#000',
     fontFamily      : 'Arial',
-    fontSize        : '8pt',
-    lineHeight      : '8pt',
+    fontSize        : '.9em',
+    lineHeight      : '.9em',
     fontWeight      : 'bold',
-    padding         : '1px',
+    padding         : '.15em .25em',
     margin          : '0px',
-    textTransform   : 'lowercase'
+    textTransform   : 'uppercase',
+    border          : '.05em solid #888',
+	borderRadius    : '.2em',
+	boxShadow       : '.1em .1em .2em #888'
 };
 
-plugins.options["hok.hint_color_link"]    = 'rgba(180, 255, 81, 1.0)';
-plugins.options["hok.hint_color_form"]    = 'rgba(157, 82, 255, 1.0)';
-plugins.options["hok.hint_color_focused"] = 'rgba(230, 116, 219, 1.0)';
+plugins.options["hok.hint_color_link"]    = 'rgba(255, 230, 110, 1.0)';
+plugins.options["hok.hint_color_form"]    = 'rgba(189, 231, 27, 1.0)';
+plugins.options["hok.hint_color_focused"] = 'rgba(255, 151, 0, 1.0)';
 
 key.setEditKey ('C-i', function (ev, arg) {
     ext.exec ( "edit_text", arg);
