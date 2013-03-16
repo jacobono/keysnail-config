@@ -385,10 +385,6 @@ key.setViewKey(['g', 'a'], function () {
     gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul");
 }, 'Open Addons manager in new tab');
 
-key.setViewKey(['g', 'A'], function () {
-    gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/extensions/extensions.xul?type=extensions");
-}, 'Open Addons manager (search mode) in new tab');
-
 key.setViewKey(['g', 'b'], function () {
     //PlacesCommandHook.showPlacesOrganizer("AllBookmarks");
     //gBrowser.selectedTab = gBrowser.addTab("chrome://browser/content/bookmarks/bookmarksPanel.xul");
