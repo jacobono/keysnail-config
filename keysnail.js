@@ -137,7 +137,7 @@ key.setViewKey('C-g', function () {
     BrowserPageInfo();
 }, 'Display page information');
 
-key.setViewKey('C-t', function (aEvent) {
+key.setViewKey('C-T', function (aEvent) {
     prompt.read("E.gg Timer:", function (query) {
         if (window.loadURI) {
             getBrowser().selectedTab = getBrowser().addTab("http://e.ggtimer.com/" + encodeURIComponent(query));
