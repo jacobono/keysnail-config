@@ -399,18 +399,6 @@ key.setViewKey(['g', 'd'], function () {
     gBrowser.selectedTab = gBrowser.addTab("chrome://mozapps/content/downloads/downloads.xul");
 }, 'Open downloads in new tab');
 
-key.setViewKey(['g', 'f'], function () {
-    var key = "view_source.editor.external";
-    util.setBoolPref(key, false);
-    BrowserViewSourceOfDocument(content.document);
-}, 'View page source');
-
-key.setViewKey(['g', 'F'], function () {
-    var key = "view_source.editor.external";
-    util.setBoolPref(key, true);
-    BrowserViewSourceOfDocument(content.document);
-}, 'View page source in external editor');
-
 key.setViewKey(['g', 'g'], function () {
     goDoCommand("cmd_scrollTop");
 }, 'Scroll to the top of the page', true);
@@ -436,6 +424,19 @@ key.setViewKey(['g', 'm'], function () {
 key.setViewKey(['g', 'p'], function () {
     openPreferences();
 }, 'Open firefox preferences');
+
+key.setViewKey(['g', 's'], function () {
+    var key = "view_source.editor.external";
+    util.setBoolPref(key, false);
+    BrowserViewSourceOfDocument(content.document);
+}, 'View page source');
+
+key.setViewKey(['g', 'S'], function () {
+    var key = "view_source.editor.external";
+    util.setBoolPref(key, true);
+    BrowserViewSourceOfDocument(content.document);
+	// must set view_source.editor.path to desired editor in about:config
+}, 'View page source in external editor');
 
 key.setViewKey(['g', 'u'], function () {
     var uri = getBrowser().currentURI;
