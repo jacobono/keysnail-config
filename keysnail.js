@@ -182,15 +182,6 @@ key.setViewKey('a', function () {
     //PlacesCommandHook.bookmarkCurrentPage(true, PlacesUtils.bookmarksMenuFolderId);
 }, 'Add bookmark here');
 
-key.setViewKey('d', function (ev) {
-    getBrowser().removeTab(getBrowser().selectedTab);
-}, 'Close tab/window');
-
-key.setViewKey('D', function (ev) {
-    document.dispatchEvent(key.stringToKeyEvent("C-w", true));
-    getBrowser().mTabContainer.advanceSelectedTab(-1, true);
-}, 'Close tab/window, focus tab to the left');
-
 key.setViewKey('f', function (ev, arg) {
     ext.exec("hok-start-foreground-mode", arg);
 }, 'Start foreground hint mode', true);
@@ -294,16 +285,20 @@ key.setViewKey('T', function () {
     command.insertText(url);
 }, 'Open a new tab based on current URL');
 
-key.setViewKey('u', function (ev) {
+key.setViewKey('w', function (ev) {
+    window.open("about:blank");
+}, 'Open a new window');
+
+key.setViewKey('x', function (ev) {
+    getBrowser().removeTab(getBrowser().selectedTab);
+}, 'Close tab/window');
+
+key.setViewKey('X', function (ev) {
     var r_ss = Cc['@mozilla.org/browser/sessionstore;1'].getService(Ci.nsISessionStore);
     if (r_ss.getClosedTabCount(window) > 0) {
         undoCloseTab();
     }
 }, 'Undo closing of a tab');
-
-key.setViewKey('w', function (ev) {
-    window.open("about:blank");
-}, 'Open a new window');
 
 key.setViewKey('y', function () {
     const gClipboardHelper = Components.classes['@mozilla.org/widget/clipboardhelper;1'].getService(Components.interfaces.nsIClipboardHelper);
