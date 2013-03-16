@@ -367,11 +367,13 @@ key.setViewKey('<', function (ev, arg) {
 }, 'Decrement last digit in the URL');
 
 key.setViewKey('\\', function () {
+
+
     var viewStyle = getMarkupDocumentViewer().authorStyleDisabled;
     if (viewStyle) {
-        setStyleDisabled(false);
+        getMarkupDocumentViewer().authorStyleDisabled = false;
     } else {
-        setStyleDisabled(true);
+        getMarkupDocumentViewer().authorStyleDisabled = true;
     }
 }, 'Toggle CSS rendering for current page');
 
